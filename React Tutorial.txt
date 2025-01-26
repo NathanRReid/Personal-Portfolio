@@ -1,0 +1,336 @@
+React Tutorial:
+React is a javascript library for building dynamic user interfaces
+Allows you to make custom nested components which react will combine into the necessary dom
+
+Use vite to create your react app:
+npm create vite@latest
+
+To run the web server:
+npm run dev
+
+Public folder: for assets like images
+
+React Components:
+src -> App.tsx (main app component)
+index.html: <div id="root"></div> is the main container for the application
+
+Typscript Files: .ts
+Typscript react files: .tsx
+
+Function based components are more popular (than class components)
+
+//UpperCamelCase for react function component
+
+In Message.tsx:
+function Message() {
+	// JSX: javascript xml (html is converted to javascript)
+	return <h1>Hello World</h1>;
+}
+
+export default Message:
+
+In App.tsx:
+import Message from './Message'
+
+function App() {
+	return <div><Message /></div>
+}
+
+
+In Message.tsx:
+function Message() {
+	const name = 'Mosh';
+	if (name) (not empty string)
+		return <h1>Hello {name}</h1>;
+	return <h1>hello world</h1>
+}
+
+Message is a child component of the App
+When running the app react creates a virtual dom with nodes
+First updates the nodes in the virtual dom of any changes
+Then updates those nodes in the actual dom
+react-dom: responsible for updating the actual dom
+React is platform agnostic: could also use reactNative instead of reactDom to render in a mobile app
+
+Library vs Framework:
+Library: Tool that provides a specific functionality.
+ex: A tool
+React is just a tool do build user interfaces
+
+Framework: Provides a set of tools and guidelines for building apps.
+ex: A toolset
+React allows you to pick the tools for the rest of the app 
+
+Building Components:
+Bootstrap - popular css library that provides css classes for styling applications
+Installing boostrap:
+npm i bootstrap@version
+
+Importing bootstrap in css files:
+App.css - contains all the styles for the app component
+index.css - global styles for the app
+(don't need vite css styling)
+import 'bootstrap/dist/css/boostrap.css'
+
+By convention put all components in a folder called components (in src folder):
+function ListGroup(){
+	return COPY BOOTSTRAP HTML HERE FOR LIST GROUP;
+}
+
+export default ListGroup;
+
+In App.tsx:
+import Message from './components/Message'
+
+function App() {
+	return <div><List Group /></div>
+}
+
+class - must be replaced for classname in jsx for react components since it's a reserved keyword
+
+
+Fragments:
+- in react a component cannot return more than 1 element
+- wrapping with <div> can solve this
+- better way is to use a fragment
+
+import {fragment} from "react";
+replace <div> with <Fragment></Fragment>
+
+Shorter syntax (no import necessary):
+<> - empty angle brackets
+</>
+
+Rendering Lists: 
+- dynamic rendering 
+ex:
+const items = [
+	'new york',
+	'san francisco',
+	'tokyo'
+];
+- jsx does not have for loops
+
+{items.map(item => <li key={item}>{item}</li>)} - put it in the jsx section of your react component where the <li> elements would go (need to wrap it in the curly braces), mapping each item to a list item
+- curly braces render data dynamically
+- jsx only use html elements or other react components
+- each list item should have a key property for react to keep track of our items so it can keep track of them when updating them
+- braces allow you to render anything dynamically
+
+Conditional Rendering:
+Option 1:
+if (items.length == 0)
+	return  <><h1>List</h1>
+		<p>no items found</p>;</>
+(above other code)
+
+or 
+
+function ListGroup(){
+	return <>
+		<h1>List</h1>
+		{items.length == 0 ? <p>No items found</p> : null} - ternary operator used her (like an if else)
+		<ul className="list-group">
+			{items.map(item => <li key={item}>{item}</li>)}	
+		</ul>
+		</>;
+}
+
+export default ListGroup;
+
+or
+
+const message = items.length == 0 ? <p>No items found</p> : null;
+{message}
+
+or 
+
+const getMessage = () => {
+	return items.length == 0 ? <p>No items found</p> : null;
+}
+{getMessage()}
+- advantage of using functions is passing parameters
+- otherwise better to use const
+
+Better way to write: items.length == 0 ? <p>No items found</p> : null;
+->
+{items.length === 0 && <p>No item found</p>}
+- how this works: result of the expression is the 2nd operand if true otherwise nothing
+
+Adding the Bootstrap Styling:
+{items.map(item => <li className="list-group-item" key={item}>{item}</li>)}	
+
+//
+Side: 
+Arrow Function: 
+const add = (a,b) => a + b; // there is an implicit return of the result
+- more concise than traditional functions
+- cannot be used as constructors
+- do not have their own 'this'
+//
+
+
+Handling Events:
+prop - property
+- in react each element has a property called onCLick={}
+{items.map(item => <li className="list-group-item" key={item} onClick = {() => console.log(item)}>{item}</li>)}
+{items.map(item => <li className="list-group-item" key={item} onClick = {(event) => console.log(event)}>{item}</li>)}
+- event (or e) is optional and represents the browser event
+- SyntheticBaseEvent (built in class in react for cross browser wrapper around native browser event for different browsers)
+- This usage is okay in the jsx markup since its just a one liner
+- More complex logic should be moved into a separate function
+
+const handleClick = (event) => console.log(event); 
+- need to specify type of the parameter, typescript compiler doesn't know where we're going to use this
+- for inline you do not need to specify the type of event because it is already recongnized in the jsx markup
+fix:
+import {MouseEvent} form "react";
+const handleClick = (event: MouseEvent) => console.log(event.);
+- Dot operators can then be used to access properties of the event object (here is the advantage of typescript: autocompletion + type safety) 
+- This function is called an event handler
+Then:
+onClick = {handleClick} - note we are not calling the function we are just passing a reference to the function to be called later (call will be done on click at runtime)
+
+Managing State:
+Click on an item it highlights it: Bootstrap css class called active
+{items.map(item => <li className="list-group-item active" key={item} onClick = {handleclick}}
+- but we don't want to highlight all of them so we need to keep track of the index of the highlighted item: 
+let selectedIndex = 0; - this is local to the react component, so react is not aware of it
+
+{items.map((item, index) => <li className={selectedIndex == index ? 'list-group-item active' : 'list-group-item'} key={item} onClick = {() => selectedIndex = index}}
+In order to update the selected index we need to tell react this component will have data or state that might change over time: 
+import {useState} from "react";
+// Hook allows us to tap into built in features in react
+// Using the state hook lets you tell react data can have state
+instead of: let selectedIndex = 0;
+
+const [selectedIndex, setSelectedIndex] = useState(-1); - initialize variable to -1, useState returns an array that we destructure
+arr[0] //variable (selectedIndex)
+arr[1] // updater function
+
+- we don't update the dom directly, we think of it through components that have states, when the state of a component changes react will update it
+{items.map((item, index) => <li className={selectedIndex == index ? 'list-group-item active' : 'list-group-item'} key={item} onClick = {() => setSelectedIndex(index);}}
+- each component has it's own state
+ex:
+in App.tsx
+return <div><ListGroup /><ListGroup /></div> - two instances of list group component with different states, independent of each other
+
+Passing Data via Props:
+- don't want to make a different component for every list of things we want to display
+- how do we resuse this component
+- use props: props are the inputs to components
+We want to pass an object of this form to the component: {items: [], heading: string}
+Typescript provides interface to define the shape of an object (goes above component):
+interface Props {
+	items: string[]; - type annotation
+	heading: string;
+}
+
+function Listgroup(props: Props){
+	
+}
+
+In App.tsx:
+function App() {
+	let items = ["New York",...]
+	return <div><ListGroup items={items} heading = "Cities" /> </div>
+
+}
+- use props.items now in the component
+Better option is to pass them to the component to use them freely:
+function ListGroup({items, heading}: props) {}
+
+Passing functions Via Props:
+- want to define functions for when someone interacts with the component but don't want to define it in the component itself to make it reusable
+- want to notify the app component when an item is selected
+
+interface Props {
+	items: string[]; - type annotation
+	heading: string;
+	// (item: String) => void
+	onSelectItem(item: string) => void;
+}
+
+function ListGroup({items, heading, onSelectItem}: props) {
+...
+
+{items.map((item, index) => <li className={selectedIndex == index ? 'list-group-item active' : 'list-group-item'} key={item} onClick = {() => setSelectedIndex(index);
+onSelectItem(item); - call function when item is selected
+}}
+...
+}
+
+In App.tsx:
+function App() {
+	let items = ["New York",...]
+	const handleSelectItem = (item: string) => {
+		console.log(item);	
+	}
+	return <div><ListGroup items={items} heading = "Cities" onSelectItem={handleSelectItem} /> </div>
+
+}
+
+Props vs State:
+Props: inputs or arguments passed to a component, they are immutable (won't cause errors but is an antipattern)
+
+State: data managed by a component, similar to local variables, mutable (data can change over time)
+Both: any time they change react will update the dom accordingly
+
+Passing Children to a component:
+Alert.tsx (in components folder)
+function Alert() {}
+export default Alert;
+
+In App.tsx: 
+<div><Alert /></div>
+
+To display an alert borrow bootstrap code:
+Go to alerts in bootstrap
+Copy necessary css classes
+
+Then we want to make it dynamic:
+interface Props {
+	text: String
+}
+
+const Alert = ({text}: Props) => {
+	return (
+	<div classname="alert alert-primary">{text}</div>
+)
+}
+
+In App.tsx
+<Alert text="Hello World" />
+
+or Pass text as a child to this component
+Want to be able to:
+<Alert>
+	Hello World - in case this was long or html (passing as child)
+</Alert>
+
+To do this: 
+import {ReactNode} from react;
+
+interface Props {
+	children: ReactNode
+}
+
+const Alert = ({children}: Props) => {
+	return (
+	<div classname="alert alert-primary">{children}</div>
+)
+}
+
+In App.tsx:
+<Alert>
+	<span> World</span> (passing as child of type ReactNode)
+</Alert>
+
+React Dev Tools: look at vid for use if needed
+
+
+
+
+
+
+
